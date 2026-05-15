@@ -1,5 +1,5 @@
 # 1. 実行環境としてTomcat（Java 11）を使用
-FROM tomcat:9.0-jdk11-openjdk
+FROM tomcat:10.1-jdk17-openjdk-slim
 
 # 2. Eclipseで作成されるWARファイルをTomcatの公開ディレクトリにコピー
 # ※通常、プロジェクト名.war という名前で書き出されます
