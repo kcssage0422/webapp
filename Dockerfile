@@ -1,9 +1,12 @@
-# Tomcatのイメージをベースにする
+# 1. 実行環境としてTomcat（Java 11）を使用
 FROM tomcat:9.0-jdk11-openjdk
 
-# Eclipseで書き出したWARファイルをTomcatの公開ディレクトリにコピー
-COPY target/your-app.war /usr/local/tomcat/webapps/ROOT.war
+# 2. Eclipseで作成されるWARファイルをTomcatの公開ディレクトリにコピー
+# ※通常、プロジェクト名.war という名前で書き出されます
+COPY target/*.war /usr/local/tomcat/webapps/ROOT.war
 
-# ポート8080を解放
+# 3. ポート8080で待機
 EXPOSE 8080
+
+# 4. Tomcatを起動
 CMD ["catalina.sh", "run"]
