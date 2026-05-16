@@ -150,7 +150,7 @@
 
     function saveStudyData() {
         const studyMinutes = Math.floor(totalStudySeconds / 60);
-        if (studyMinutes < 1) return; // 1分未満は保存しない例
+<!--        if (studyMinutes < 1) return; // 1分未満は保存しない例-->
 
         const subjectId = document.getElementById("subjectIdInput").value;
         const params = "subjectId=" + subjectId + "&studyTime=" + studyMinutes;

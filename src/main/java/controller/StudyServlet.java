@@ -63,35 +63,41 @@ public class StudyServlet extends HttpServlet {
 	    User loginUser = (User) session.getAttribute("currentUser");
 
 
-	    // ---------------------------------------------------------
+	 // ---------------------------------------------------------
 	    // パターンA：タイマーからの記録送信の場合
 	    // ---------------------------------------------------------
-	    if ("timer_record".equals(action)) {
-	        if (loginUser == null) System.out.println("エラー: loginUserがnullです（ログインしていません）");
-	        if (studyTimeStr == null) System.out.println("エラー: studyTimeStrがnullです");
-	        if (subjectIdStr == null) System.out.println("エラー: subjectIdStrがnullです");
+	    // 🌟 actionのチェックを外し、タイマーから直接studyTimeが送られてきた場合に対応させます
+	    if (studyTimeStr != null && request.getParameter("cardId") == null) {
+	        if (loginUser == null) {
+	            System.out.println("エラー: loginUserがnullです（ログインしていません）");
+	            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+	            return;
+	        }
+	        if (subjectIdStr == null) {
+	            System.out.println("エラー: subjectIdStrがnullです");
+	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+	            return;
+	        }
 
-	        if (loginUser != null && studyTimeStr != null && subjectIdStr != null) {
-	            try {
-	                int seconds = Integer.parseInt(studyTimeStr);
-	                int subjectId = Integer.parseInt(subjectIdStr);
-	                int minutes = Math.round((float)seconds / 60);
-	                if (minutes == 0 && seconds > 0) minutes = 1;
+	        try {
+	            // JSPからはすでに「分」単位で送られてきているので、そのまま使用する
+	            int minutes = Integer.parseInt(studyTimeStr);
+	            int subjectId = Integer.parseInt(subjectIdStr);
 
+	            // 1分未満のガードはJSP側でされていますが、念のため1以上であることを確認
+	            if (minutes > 0) {
 	                FlashcardDAO dao = new FlashcardDAO();
 	                dao.insertStudyRecord(loginUser.getId(), subjectId, minutes);
+	                System.out.println("タイマー学習記録成功: " + minutes + "分をDBに保存しました");
 	                response.setStatus(HttpServletResponse.SC_OK);
 	                return;
-	                
-	            } catch (NumberFormatException e) {
-	                System.out.println("エラー: 数値変換に失敗しました " + e.getMessage());
 	            }
-	        } else {
-	            System.out.println("条件を満たさなかったため、DB登録をスキップしました。");
+	            
+	        } catch (NumberFormatException e) {
+	            System.out.println("エラー: 数値変換に失敗しました " + e.getMessage());
+	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+	            return;
 	        }
-	        
-	        response.sendRedirect("studyTimer.jsp"); 
-	        return; // ここで処理終了
 	    }
 
 
