@@ -149,27 +149,32 @@
     }
 
     function saveStudyData() {
-        const studyMinutes = Math.floor(totalStudySeconds / 60);
-<!--        if (studyMinutes < 1) return; // 1分未満は保存しない例-->
+        // 【テスト用修正】1分未満のガードを解除し、秒数をそのまま送るか、最低1分としてカウントする
+        const studyMinutes = Math.floor(totalStudySeconds / 60) || 1; // 0分なら強制的に1分にする
 
         const subjectId = document.getElementById("subjectIdInput").value;
-        const params = "subjectId=" + subjectId + "&studyTime=" + studyMinutes;
-        console.log("params:", params);
-     // 🌟 先頭にスラッシュとJavaのパスを自動計算するコードを挟みます
-        fetch("${pageContext.request.contextPath}/StudyServlet", {
+        
+        // 🌟URLの宛先も確実に届くよう絶対パスに補正します
+        const targetUrl = "${pageContext.request.contextPath}/StudyServlet";
+        
+        // 🌟Java側が最初「action=timer_record」を求めていたので、それもパラメータに足しておきます
+        const params = "action=timer_record&subjectId=" + subjectId + "&studyTime=" + totalStudySeconds;
+
+        console.log("👉今からRenderにデータを送ります！ URL:", targetUrl, " パラメータ:", params);
+
+        fetch(targetUrl, {
             method: "POST",
             body: params,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(response => {
-            // サーバーから「OK（200）」が返ってきたかチェック
             if (response.ok) {
-                console.log("サーバーへの学習記録保存に成功しました！");
+                console.log("🎉Render（Java）への送信が通信レベルで成功しました！");
                 totalStudySeconds = 0;
             } else {
-                console.error("サーバー側でエラーが発生しました。ステータスコード:", response.status);
+                console.error("❌Renderまでは届きましたが、Java側がエラーを返しました。ステータス:", response.status);
             }
         }).catch(error => {
-            console.error("通信自体に失敗しました（ネットワークエラー）:", error);
+            console.error("❌通信そのものが失敗しました:", error);
         });
     }
 </script>
