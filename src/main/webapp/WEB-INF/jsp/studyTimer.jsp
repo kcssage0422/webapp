@@ -155,15 +155,15 @@
         const subjectId = document.getElementById("subjectIdInput").value;
         const params = "subjectId=" + subjectId + "&studyTime=" + studyMinutes;
 
-     // 🌟 宛先URLの先頭にスラッシュとコンテキストパスを明示します
+     // 🌟 先頭にスラッシュとJavaのパスを自動計算するコードを挟みます
         fetch("${pageContext.request.contextPath}/StudyServlet", {
             method: "POST",
             body: params,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(response => {
-            // 念のため、サーバーからエラー（404や500など）が返ってきたらブラウザ側でも気付けるようにログを強化します
+            // サーバーから「OK（200）」が返ってきたかチェック
             if (response.ok) {
-                console.log("学習記録を保存しました（サーバー通信成功）");
+                console.log("サーバーへの学習記録保存に成功しました！");
                 totalStudySeconds = 0;
             } else {
                 console.error("サーバー側でエラーが発生しました。ステータスコード:", response.status);
