@@ -5,9 +5,11 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBUtil {
-	private static final String URL = "jdbc:mariadb://localhost:3306/study_app_db";
-    private static final String USER = "root";
-    private static final String PASS = "mysql";
+	// あなたのDBUtil.javaの上の部分をこのように書き換えます
+	// 生のパスワードは消して、システムから読み込むようにします
+	private static final String URL = System.getenv("DB_URL");
+	private static final String USER = System.getenv("DB_USER");
+	private static final String PASS = System.getenv("DB_PASS");
 
     /**
      * データベースへの接続を取得します。
