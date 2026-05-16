@@ -81,13 +81,13 @@ public class FlashcardDAO {
 
 	    try (Connection conn = DBUtil.getConnection();
 	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
-	        
+	    	conn.setAutoCommit(false);
 	        pstmt.setInt(1, userId);
 	        pstmt.setInt(2, subjectId);
 	        pstmt.setInt(3, minutes);
 	        
 	        pstmt.executeUpdate();
-	        
+	        conn.commit();
 	    } catch (SQLException e) {
 	        e.printStackTrace();
 	    }
