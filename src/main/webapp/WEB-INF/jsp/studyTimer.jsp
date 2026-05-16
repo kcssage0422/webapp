@@ -154,7 +154,7 @@
 
         const subjectId = document.getElementById("subjectIdInput").value;
         const params = "subjectId=" + subjectId + "&studyTime=" + studyMinutes;
-
+        console.log("params:", params);
      // 🌟 先頭にスラッシュとJavaのパスを自動計算するコードを挟みます
         fetch("${pageContext.request.contextPath}/StudyServlet", {
             method: "POST",
