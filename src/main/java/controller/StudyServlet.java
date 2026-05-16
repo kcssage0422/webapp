@@ -53,65 +53,66 @@ public class StudyServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	    request.setCharacterEncoding("UTF-8"); // 文字化け防止
 
-	    // 1. 共通で使用するパラメータやセッションを取得
-	    String action = request.getParameter("action");
+	    // パラメータの取得
 	    String studyTimeStr = request.getParameter("studyTime");
 	    String subjectIdStr = request.getParameter("subjectId");
+	    String cardIdStr = request.getParameter("cardId");
+	    String result = request.getParameter("result");
 	    
 	    HttpSession session = request.getSession();
-	    // ここでUserの型名は、プロジェクトの実際のクラス名（User または User_dto）に合わせてください
 	    User loginUser = (User) session.getAttribute("currentUser");
 
+	    System.out.println("--- StudyServlet: doPost が呼び出されました ---");
+	    System.out.println("studyTime: " + studyTimeStr);
+	    System.out.println("subjectId: " + subjectIdStr);
+	    System.out.println("cardId: " + cardIdStr);
 
-	 // ---------------------------------------------------------
-	    // パターンA：タイマーからの記録送信の場合
 	    // ---------------------------------------------------------
-	    // 🌟 actionのチェックを外し、タイマーから直接studyTimeが送られてきた場合に対応させます
-	    if (studyTimeStr != null && request.getParameter("cardId") == null) {
+	    // 【判定】カードの復習機能か、タイマー機能か
+	    // ---------------------------------------------------------
+	    if (cardIdStr == null && studyTimeStr != null) {
+	        // 🕒 タイマーからの学習記録保存処理
+	        System.out.println("-> タイマーからのデータ送信を検知しました。");
+
 	        if (loginUser == null) {
-	            System.out.println("エラー: loginUserがnullです（ログインしていません）");
+	            System.out.println("【警告】ログインユーザーがnullのため、保存をスキップしました。");
 	            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 	            return;
 	        }
 	        if (subjectIdStr == null) {
-	            System.out.println("エラー: subjectIdStrがnullです");
+	            System.out.println("【警告】subjectIdがnullのため、保存をスキップしました。");
 	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	            return;
 	        }
 
 	        try {
-	            // JSPからはすでに「分」単位で送られてきているので、そのまま使用する
 	            int minutes = Integer.parseInt(studyTimeStr);
 	            int subjectId = Integer.parseInt(subjectIdStr);
 
-	            // 1分未満のガードはJSP側でされていますが、念のため1以上であることを確認
-	            if (minutes > 0) {
-	                FlashcardDAO dao = new FlashcardDAO();
-	                dao.insertStudyRecord(loginUser.getId(), subjectId, minutes);
-	                System.out.println("タイマー学習記録成功: " + minutes + "分をDBに保存しました");
-	                response.setStatus(HttpServletResponse.SC_OK);
-	                return;
-	            }
+	            System.out.println("-> DAOの呼び出し直前: userId=" + loginUser.getId() + ", subjectId=" + subjectId + ", minutes=" + minutes);
+	            
+	            FlashcardDAO dao = new FlashcardDAO();
+	            dao.insertStudyRecord(loginUser.getId(), subjectId, minutes);
+	            
+	            System.out.println("【成功】Aivenデータベースへの保存命令が完了しました！");
+	            response.setStatus(HttpServletResponse.SC_OK);
+	            return;
 	            
 	        } catch (NumberFormatException e) {
-	            System.out.println("エラー: 数値変換に失敗しました " + e.getMessage());
+	            System.out.println("【エラー】数値の変換に失敗しました: " + e.getMessage());
 	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	            return;
 	        }
-	    }
 
+	    } else if (cardIdStr != null && result != null && subjectIdStr != null) {
+	        // 📇 単語カードの復習結果保存処理
+	        System.out.println("-> 単語カードからのデータ送信を検知しました。");
+	        
+	        if (loginUser == null) {
+	            response.sendRedirect("LoginServlet"); 
+	            return;
+	        }
 
-	    
-	    // ログインしていない場合は、ログイン画面へリダイレクト
-	    if (loginUser == null) {
-	        response.sendRedirect("LoginServlet"); 
-	        return;
-	    }
-
-	    String cardIdStr = request.getParameter("cardId");
-	    String result = request.getParameter("result");
-
-	    if (cardIdStr != null && result != null && subjectIdStr != null) {
 	        try {
 	            int cardId = Integer.parseInt(cardIdStr);
 	            int subjectId = Integer.parseInt(subjectIdStr);
@@ -128,7 +129,6 @@ public class StudyServlet extends HttpServlet {
 	                int minutes = (int) Math.ceil(seconds / 60.0);
 	                if (minutes == 0 && seconds > 0) minutes = 1;
 
-	                // セッションから取得したユーザーIDを使用して保存
 	                dao.insertStudyRecord(loginUser.getId(), subjectId, minutes);
 	                System.out.println("カード学習記録成功: " + minutes + "分");
 	            }
@@ -136,10 +136,15 @@ public class StudyServlet extends HttpServlet {
 	        } catch (NumberFormatException e) {
 	            e.printStackTrace();
 	        }
+	        
+	        // 次の問題へ（StudyServletのdoGetへ）
+	        response.sendRedirect("StudyServlet");
+	        return;
 	    }
 	    
-	    // 次の問題へ（StudyServletのdoGetへ）
-	    response.sendRedirect("StudyServlet");
+	    // どちらの条件にも当てはまらなかった場合
+	    System.out.println("【警告】タイマー、カードどちらの条件にも一致しませんでした。");
+	    response.sendRedirect("HomeServlet");
 	}
 	
 	
