@@ -155,15 +155,21 @@
         const subjectId = document.getElementById("subjectIdInput").value;
         const params = "subjectId=" + subjectId + "&studyTime=" + studyMinutes;
 
-        fetch("StudyServlet", {
+     // 🌟 宛先URLの先頭にスラッシュとコンテキストパスを明示します
+        fetch("${pageContext.request.contextPath}/StudyServlet", {
             method: "POST",
             body: params,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(response => {
+            // 念のため、サーバーからエラー（404や500など）が返ってきたらブラウザ側でも気付けるようにログを強化します
             if (response.ok) {
-                console.log("学習記録を保存しました");
+                console.log("学習記録を保存しました（サーバー通信成功）");
                 totalStudySeconds = 0;
+            } else {
+                console.error("サーバー側でエラーが発生しました。ステータスコード:", response.status);
             }
+        }).catch(error => {
+            console.error("通信自体に失敗しました（ネットワークエラー）:", error);
         });
     }
 </script>
