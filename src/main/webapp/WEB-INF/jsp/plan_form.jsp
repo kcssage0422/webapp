@@ -11,7 +11,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>計画の<%= mode %></title>
+    <title>計画の<%= mode %> | DailyKnowly</title>
     <style>
         body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; padding: 40px 20px; }
         .form-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 500px; }

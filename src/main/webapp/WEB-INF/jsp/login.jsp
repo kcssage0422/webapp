@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ログイン | 学習管理アプリ</title>
+    <title>ログイン | DailyKnowly</title>
     <style>
         /* 全体のリセットと背景 */
         body {
@@ -18,21 +18,36 @@
             color: #333;
         }
 
+        /* ラッパー（タイトルとカードを縦に並べるための箱） */
+        .login-wrapper {
+            width: 100%;
+            max-width: 380px;
+            text-align: center;
+        }
+
+        /* 追加：カードの上のアプリタイトル */
+        .app-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 100px;
+            letter-spacing: 2px;
+            text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5); /* 文字を少し立体的に */
+        }
+
         /* ログインカード */
         .login-card {
             background: white;
             padding: 40px;
             border-radius: 12px;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            width: 100%;
-            max-width: 380px;
             text-align: center;
         }
 
         h2 {
             margin-bottom: 30px;
-            color: #2c3e50;
-            font-size: 24px;
+            color: #7f8c8d;
+            font-size: 18px;
             letter-spacing: 1px;
         }
 
@@ -66,7 +81,7 @@
             padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            box-sizing: border-box; /* paddingを含めた幅計算 */
+            box-sizing: border-box;
             font-size: 16px;
             transition: border-color 0.3s;
         }
@@ -119,31 +134,37 @@
 </head>
 <body>
 
-    <div class="login-card">
-        <h2>LOGIN</h2>
+    <div class="login-wrapper">
+        
+        <div class="app-title"><h1>DailyKnowly</h1></div>
 
-        <% if (request.getAttribute("errorMsg") != null) { %>
-            <div class="error-msg">${errorMsg}</div>
-        <% } %>
+        <div class="login-card">
+            <h2>LOGIN</h2>
 
-        <form action="${pageContext.request.contextPath}/LoginServlet" method="post">
-            <div class="input-group">
-                <label for="userName">ユーザー名</label>
-                <input type="text" id="userName" name="userName" placeholder="Username" required autofocus>
+            <% if (request.getAttribute("errorMsg") != null) { %>
+                <div class="error-msg">${errorMsg}</div>
+            <% } %>
+
+            <form action="${pageContext.request.contextPath}/LoginServlet" method="post">
+                <div class="input-group">
+                    <label for="userName">ユーザー名</label>
+                    <input type="text" id="userName" name="userName" placeholder="Username" required autofocus>
+                </div>
+
+                <div class="input-group">
+                    <label for="password">パスワード</label>
+                    <input type="password" id="password" name="password" placeholder="Password" required>
+                </div>
+
+                <button type="submit">ログイン</button>
+            </form>
+
+            <div class="footer-links">
+                アカウントをお持ちでないですか？ <br>
+                <a href="RegisterServlet">新規アカウント作成</a>
             </div>
-
-            <div class="input-group">
-                <label for="password">パスワード</label>
-                <input type="password" id="password" name="password" placeholder="Password" required>
-            </div>
-
-            <button type="submit">ログイン</button>
-        </form>
-
-        <div class="footer-links">
-            アカウントをお持ちでないですか？ <br>
-            <a href="RegisterServlet">新規アカウント作成</a>
         </div>
+        
     </div>
 
 </body>

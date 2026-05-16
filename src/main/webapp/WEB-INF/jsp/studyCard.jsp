@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>学習中 | 学習管理アプリ</title>
+    <title>学習中 | DailyKnowly</title>
     <style>
         body { font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .study-container { width: 100%; max-width: 500px; text-align: center; padding: 20px; }

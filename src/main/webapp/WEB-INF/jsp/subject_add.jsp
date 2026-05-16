@@ -3,7 +3,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>科目登録 | 学習管理アプリ</title>
+    <title>科目登録 | DailyKnowly</title>
     <style>
         body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 320px; text-align: center; }

@@ -5,7 +5,7 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>削除確認</title>
+    <title>削除確認 | DailyKnowly</title>
     <style>
         body { font-family: sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .confirm-card { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 350px; text-align: center; }
