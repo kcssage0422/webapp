@@ -129,10 +129,15 @@
             alert("休憩終了！学習を開始しましょう。");
         } else {
             document.body.className = "break-mode";
+            const statusText = document.getElementById("status");
             statusText.innerText = "休憩タイム";
             statusText.style.color = "#3498db";
-            saveStudyData(); // 学習終了時に保存
-            alert("お疲れ様！休憩に入ります。");
+            
+            // 🌟まず先にアラートを出して、ユーザーが「OK」を押してフリーズが解けるのを待つ
+            alert("お疲れ様！休憩に入ります。"); 
+            
+            // 🌟画面が完全に安定した「後」に、安全にRenderへデータを送信する！
+            saveStudyData(); 
         }
         
         updateDisplay();
