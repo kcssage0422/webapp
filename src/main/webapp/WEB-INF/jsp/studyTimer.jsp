@@ -182,34 +182,34 @@
             console.error("❌ ネットワークエラーが発生しました:", error);
         });
     }
- // 🌟関数名を完全に新しい名前に変更し、キャッシュの使い回しを強制的に破壊します
+ // 🌟 本番仕様：1分以上学習した場合のみ安全にDBへ送信する関数
     function sendTimerRecordToDatabase() {
-        let studyMinutes = Math.floor(totalStudySeconds / 60);
-        if (studyMinutes < 1 && totalStudySeconds > 0) {
-            studyMinutes = 1; // テスト用に数秒でも1分にする設定
+        // 【本番仕様に修正】動いた秒数をきっちり「分」に変換（1分未満は0分になります）
+        const studyMinutes = Math.floor(totalStudySeconds / 60);
+        
+        // 1分未満（0分）の場合は、DBを汚さないために送信せずにここで終了
+        if (studyMinutes < 1) {
+            totalStudySeconds = 0; // タイマー秒数だけリセットして終了
+            return;
         }
-        if (studyMinutes < 1) return; 
 
         const subjectId = document.getElementById("subjectIdInput").value;
         const targetUrl = "${pageContext.request.contextPath}/StudyServlet";
         const params = "action=timer_record&subjectId=" + subjectId + "&studyTime=" + studyMinutes;
 
-        // 🌟これがコンソールに出れば、今度こそ新しいコードが動いた証拠になります！
-        console.log("🚀【新関数が発動！】データベースにPOST送信します。URL:", targetUrl);
-
+        // 余計なログはすべて消去し、最低限の成功・失敗ログだけに絞ります
         fetch(targetUrl, {
             method: "POST",
             body: params,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(response => {
             if (response.ok) {
-                console.log("🎉【通信成功】Javaサーブレット側で200 OKを受け取りました！");
-                totalStudySeconds = 0; 
+                totalStudySeconds = 0; // 保存に成功したら計測秒数をリセット
             } else {
-                console.error("❌ サーバーエラーが発生しました。ステータス:", response.status);
+                console.error("学習記録の保存に失敗しました。ステータス:", response.status);
             }
         }).catch(error => {
-            console.error("❌ ネットワーク通信自体が失敗しました:", error);
+            console.error("ネットワークエラーが発生しました:", error);
         });
     }
 </script>

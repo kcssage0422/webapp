@@ -68,19 +68,17 @@ public class StudyServlet extends HttpServlet {
 	    System.out.println("studyTime: " + studyTimeStr);
 	    System.out.println("subjectId: " + subjectIdStr);
 
-	    // =========================================================
+	 // =========================================================
 	    // 🕒 1. タイマーからの保存リクエスト（action = timer_record）
 	    // =========================================================
 	    if ("timer_record".equals(action)) {
-	        System.out.println("-> 【検知】タイマーからの保存処理を実行します");
-
 	        if (loginUser == null) {
-	            System.out.println("【警告】未ログインのため401エラーを返します");
+	            System.out.println("【StudyServlet】警告: 未ログインのタイマーリクエストを拒否しました。");
 	            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 	            return;
 	        }
 	        if (subjectIdStr == null || studyTimeStr == null) {
-	            System.out.println("【警告】パラメータ不足のため400エラーを返します");
+	            System.out.println("【StudyServlet】警告: パラメータ不足のためタイマー保存をスキップしました。");
 	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	            return;
 	        }
@@ -89,20 +87,16 @@ public class StudyServlet extends HttpServlet {
 	            int minutes = Integer.parseInt(studyTimeStr);
 	            int subjectId = Integer.parseInt(subjectIdStr);
 
-	            System.out.println("-> DAOを呼び出します: userId=" + loginUser.getId() + ", minutes=" + minutes);
-	            
-	            // Aivenデータベースへ保存
+	            // Aivenデータベースへ学習記録を保存
 	            FlashcardDAO dao = new FlashcardDAO();
 	            dao.insertStudyRecord(loginUser.getId(), subjectId, minutes);
 	            
-	            System.out.println("【成功】Aivenへの学習記録保存が完了しました！");
-	            
-	            // 🌟【超重要】fetch通信なのでリダイレクトは絶対せず、200 OK（成功ステータス）だけを返す
+	            // 正常終了のステータスコードを返す
 	            response.setStatus(HttpServletResponse.SC_OK);
 	            return; 
 	            
 	        } catch (NumberFormatException e) {
-	            System.out.println("【エラー】数値変換失敗: " + e.getMessage());
+	            System.out.println("【StudyServlet】エラー: 数値変換に失敗しました: " + e.getMessage());
 	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	            return;
 	        }
