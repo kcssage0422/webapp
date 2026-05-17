@@ -149,18 +149,19 @@
     }
 
     function saveStudyData() {
-        // 【テスト用修正】1分未満のガードを解除し、秒数をそのまま送るか、最低1分としてカウントする
-        const studyMinutes = Math.floor(totalStudySeconds / 60) || 1; // 0分なら強制的に1分にする
+        // 1分以上動いているか判定（テスト時はここを totalStudySeconds >= 0 にするとすぐ送れます）
+        const studyMinutes = Math.floor(totalStudySeconds / 60);
+        if (studyMinutes < 1) return; 
 
         const subjectId = document.getElementById("subjectIdInput").value;
         
-        // 🌟URLの宛先も確実に届くよう絶対パスに補正します
+        // 🌟【最重要修正】宛先を「StudyTimerServlet」ではなく「StudyServlet」に修正します！
         const targetUrl = "${pageContext.request.contextPath}/StudyServlet";
         
-        // 🌟Java側が最初「action=timer_record」を求めていたので、それもパラメータに足しておきます
+        // Java側が待っているパラメータ「action=timer_record」をセット
         const params = "action=timer_record&subjectId=" + subjectId + "&studyTime=" + totalStudySeconds;
 
-        console.log("👉今からRenderにデータを送ります！ URL:", targetUrl, " パラメータ:", params);
+        console.log("👉 正しい宛先に送信します:", targetUrl, "データ:", params);
 
         fetch(targetUrl, {
             method: "POST",
@@ -168,13 +169,13 @@
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(response => {
             if (response.ok) {
-                console.log("🎉Render（Java）への送信が通信レベルで成功しました！");
-                totalStudySeconds = 0;
+                console.log("🎉 Aivenデータベースへの保存に成功しました！");
+                totalStudySeconds = 0; // タイマーの記録をリセット
             } else {
-                console.error("❌Renderまでは届きましたが、Java側がエラーを返しました。ステータス:", response.status);
+                console.error("❌ サーバーに届きましたがエラーが返りました。ステータス:", response.status);
             }
         }).catch(error => {
-            console.error("❌通信そのものが失敗しました:", error);
+            console.error("❌ 通信そのものに失敗しました:", error);
         });
     }
 </script>
