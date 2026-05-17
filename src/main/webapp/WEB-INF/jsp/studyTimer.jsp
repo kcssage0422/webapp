@@ -133,11 +133,11 @@
             statusText.innerText = "休憩タイム";
             statusText.style.color = "#3498db";
             
-            // 🌟まず先にアラートを出して、ユーザーが「OK」を押してフリーズが解けるのを待つ
+            // 🌟まず先にアラートを出し切る
             alert("お疲れ様！休憩に入ります。"); 
             
-            // 🌟画面が完全に安定した「後」に、安全にRenderへデータを送信する！
-            saveStudyData(); 
+            // 🌟【重要】新しく作った関数名に書き換えます！
+            sendTimerRecordToDatabase(); 
         }
         
         updateDisplay();
@@ -180,6 +180,36 @@
             }
         }).catch(error => {
             console.error("❌ ネットワークエラーが発生しました:", error);
+        });
+    }
+ // 🌟関数名を完全に新しい名前に変更し、キャッシュの使い回しを強制的に破壊します
+    function sendTimerRecordToDatabase() {
+        let studyMinutes = Math.floor(totalStudySeconds / 60);
+        if (studyMinutes < 1 && totalStudySeconds > 0) {
+            studyMinutes = 1; // テスト用に数秒でも1分にする設定
+        }
+        if (studyMinutes < 1) return; 
+
+        const subjectId = document.getElementById("subjectIdInput").value;
+        const targetUrl = "${pageContext.request.contextPath}/StudyServlet";
+        const params = "action=timer_record&subjectId=" + subjectId + "&studyTime=" + studyMinutes;
+
+        // 🌟これがコンソールに出れば、今度こそ新しいコードが動いた証拠になります！
+        console.log("🚀【新関数が発動！】データベースにPOST送信します。URL:", targetUrl);
+
+        fetch(targetUrl, {
+            method: "POST",
+            body: params,
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+        }).then(response => {
+            if (response.ok) {
+                console.log("🎉【通信成功】Javaサーブレット側で200 OKを受け取りました！");
+                totalStudySeconds = 0; 
+            } else {
+                console.error("❌ サーバーエラーが発生しました。ステータス:", response.status);
+            }
+        }).catch(error => {
+            console.error("❌ ネットワーク通信自体が失敗しました:", error);
         });
     }
 </script>
