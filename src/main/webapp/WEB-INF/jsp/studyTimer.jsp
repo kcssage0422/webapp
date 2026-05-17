@@ -53,8 +53,8 @@
     </div>
 
     <div class="controls">
-        <button id="startBtn" onclick="startTimer()">START</button>
-        <button id="stopBtn" onclick="stopTimer()" disabled>STOP</button>
+        <button type="button" id="startBtn" onclick="startTimer()">START</button>
+        <button type="button" id="stopBtn" onclick="stopTimer()" disabled>STOP</button>
     </div>
     <button class="reset-btn" onclick="resetTimer()">タイマーをリセット</button>
     <input type="hidden" id="subjectIdInput" value="1">
@@ -154,35 +154,32 @@
     }
 
     function saveStudyData() {
-        // 1分以上動いているか判定（テスト時は totalStudySeconds > 0 にすると数秒で送れます）
+        // テスト用：数秒動かしただけで必ず1分として送る設定
         let studyMinutes = Math.floor(totalStudySeconds / 60);
         if (studyMinutes < 1 && totalStudySeconds > 0) {
-            studyMinutes = 1; // 0分ならテスト用に強制的に1分にする
+            studyMinutes = 1; 
         }
         if (studyMinutes < 1) return; 
 
         const subjectId = document.getElementById("subjectIdInput").value;
         const targetUrl = "${pageContext.request.contextPath}/StudyServlet";
-        
-        // 🌟Java側が待っているパラメータを正確にセット
         const params = "action=timer_record&subjectId=" + subjectId + "&studyTime=" + studyMinutes;
 
-        console.log("👉 【送信開始】余計な通信をせず、POSTだけを1回送信します。");
+        console.log("👉 【送信発射】余計なリロードをせず、POSTを1回だけ送ります");
 
-        // 🌟余計な後処理（GETのfetchなど）をすべて排除したシンプルなfetch
         fetch(targetUrl, {
             method: "POST",
             body: params,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(response => {
             if (response.ok) {
-                console.log("🎉 【大成功】RenderのJava側にデータが届き、200 OKが返ってきました！");
-                totalStudySeconds = 0; // 記録をリセットして終了
+                console.log("🎉 【大成功】通信がJava（StudyServlet）に届き、200 OKが返りました！");
+                totalStudySeconds = 0; // タイマー記録をクリアして静かに終了
             } else {
-                console.error("❌ サーバー側からエラーが返されました。ステータスコード:", response.status);
+                console.error("❌ サーバー側でエラーが返されました。ステータス:", response.status);
             }
         }).catch(error => {
-            console.error("❌ 通信自体に失敗しました:", error);
+            console.error("❌ ネットワークエラーが発生しました:", error);
         });
     }
 </script>
