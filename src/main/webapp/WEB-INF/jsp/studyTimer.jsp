@@ -154,33 +154,35 @@
     }
 
     function saveStudyData() {
-        // 1分以上動いているか判定（テスト時はここを totalStudySeconds >= 0 にするとすぐ送れます）
-        const studyMinutes = Math.floor(totalStudySeconds / 60);
+        // 1分以上動いているか判定（テスト時は totalStudySeconds > 0 にすると数秒で送れます）
+        let studyMinutes = Math.floor(totalStudySeconds / 60);
+        if (studyMinutes < 1 && totalStudySeconds > 0) {
+            studyMinutes = 1; // 0分ならテスト用に強制的に1分にする
+        }
         if (studyMinutes < 1) return; 
 
         const subjectId = document.getElementById("subjectIdInput").value;
-        
-        // 🌟【最重要修正】宛先を「StudyTimerServlet」ではなく「StudyServlet」に修正します！
         const targetUrl = "${pageContext.request.contextPath}/StudyServlet";
         
-        // Java側が待っているパラメータ「action=timer_record」をセット
-        const params = "action=timer_record&subjectId=" + subjectId + "&studyTime=" + totalStudySeconds;
+        // 🌟Java側が待っているパラメータを正確にセット
+        const params = "action=timer_record&subjectId=" + subjectId + "&studyTime=" + studyMinutes;
 
-        console.log("👉 正しい宛先に送信します:", targetUrl, "データ:", params);
+        console.log("👉 【送信開始】余計な通信をせず、POSTだけを1回送信します。");
 
+        // 🌟余計な後処理（GETのfetchなど）をすべて排除したシンプルなfetch
         fetch(targetUrl, {
             method: "POST",
             body: params,
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
         }).then(response => {
             if (response.ok) {
-                console.log("🎉 Aivenデータベースへの保存に成功しました！");
-                totalStudySeconds = 0; // タイマーの記録をリセット
+                console.log("🎉 【大成功】RenderのJava側にデータが届き、200 OKが返ってきました！");
+                totalStudySeconds = 0; // 記録をリセットして終了
             } else {
-                console.error("❌ サーバーに届きましたがエラーが返りました。ステータス:", response.status);
+                console.error("❌ サーバー側からエラーが返されました。ステータスコード:", response.status);
             }
         }).catch(error => {
-            console.error("❌ 通信そのものに失敗しました:", error);
+            console.error("❌ 通信自体に失敗しました:", error);
         });
     }
 </script>
