@@ -53,7 +53,7 @@ public class StudyServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 	    request.setCharacterEncoding("UTF-8"); // 文字化け防止
 
-	    // 1. 全てのパラメータとセッションを一斉に取得
+	    // パラメータとセッションの取得
 	    String action = request.getParameter("action");
 	    String studyTimeStr = request.getParameter("studyTime");
 	    String subjectIdStr = request.getParameter("subjectId");
@@ -69,48 +69,47 @@ public class StudyServlet extends HttpServlet {
 	    System.out.println("subjectId: " + subjectIdStr);
 
 	    // =========================================================
-	    // 🌟 復活：タイマーからの保存処理（action が timer_record の場合）
+	    // 🕒 1. タイマーからの保存リクエスト（action = timer_record）
 	    // =========================================================
 	    if ("timer_record".equals(action)) {
-	        System.out.println("-> 【検知】タイマーからの保存リクエストが届きました！");
+	        System.out.println("-> 【検知】タイマーからの保存処理を実行します");
 
 	        if (loginUser == null) {
-	            System.out.println("【警告】ログインユーザーがnullのため、保存をスキップします。");
+	            System.out.println("【警告】未ログインのため401エラーを返します");
 	            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
 	            return;
 	        }
 	        if (subjectIdStr == null || studyTimeStr == null) {
-	            System.out.println("【警告】必要なパラメータが足りないため、保存をスキップします。");
+	            System.out.println("【警告】パラメータ不足のため400エラーを返します");
 	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	            return;
 	        }
 
 	        try {
-	            // タイマーから送られてきた「分」を取得
 	            int minutes = Integer.parseInt(studyTimeStr);
 	            int subjectId = Integer.parseInt(subjectIdStr);
 
-	            System.out.println("-> DAO呼び出し: userId=" + loginUser.getId() + ", subjectId=" + subjectId + ", minutes=" + minutes);
+	            System.out.println("-> DAOを呼び出します: userId=" + loginUser.getId() + ", minutes=" + minutes);
 	            
-	            // Aivenへ保存を実行
+	            // Aivenデータベースへ保存
 	            FlashcardDAO dao = new FlashcardDAO();
 	            dao.insertStudyRecord(loginUser.getId(), subjectId, minutes);
 	            
-	            System.out.println("【成功】Aivenデータベースへの保存が完了しました！");
+	            System.out.println("【成功】Aivenへの学習記録保存が完了しました！");
 	            
-	            // 🌟重要：fetch通信（裏側の通信）なので、画面移動はせず「OK」の合図だけを返します
+	            // 🌟【超重要】fetch通信なのでリダイレクトは絶対せず、200 OK（成功ステータス）だけを返す
 	            response.setStatus(HttpServletResponse.SC_OK);
-	            return;
+	            return; 
 	            
 	        } catch (NumberFormatException e) {
-	            System.out.println("【エラー】数値の変換に失敗しました: " + e.getMessage());
+	            System.out.println("【エラー】数値変換失敗: " + e.getMessage());
 	            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 	            return;
 	        }
 	    }
 
 	    // =========================================================
-	    // 📇 単語カードの復習結果保存処理（従来通りの処理）
+	    // 📇 2. 単語カードの復習結果保存リクエスト（従来の処理）
 	    // =========================================================
 	    if (loginUser == null) {
 	        response.sendRedirect("LoginServlet"); 
@@ -142,13 +141,13 @@ public class StudyServlet extends HttpServlet {
 	            e.printStackTrace();
 	        }
 	        
-	        // 次の問題へ（StudyServletのdoGetへ）
+	        // カード機能は画面移動を伴うので、通常のリダイレクトを行う
 	        response.sendRedirect("StudyServlet");
 	        return;
 	    }
 	    
-	    // どちらの条件にも当てはまらなかった場合
-	    System.out.println("【警告】タイマー、カードどちらの条件にも一致しませんでした。Homeへ戻します。");
+	    // 3. どちらの条件にも当てはまらなかった場合
+	    System.out.println("【警告】条件不一致のためHomeへ戻します。");
 	    response.sendRedirect("HomeServlet");
 	}
 }
