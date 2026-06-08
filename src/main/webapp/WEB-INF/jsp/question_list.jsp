@@ -175,18 +175,29 @@ h1 {
 		// 1. 自分の科目リストが存在するかチェック
 		if (subjectList != null) {
 			for (Subject s : subjectList) {
-				// マイ問題側は、非公開の科目であっても自分自身のものなので全て表示します
 				boolean hasMyCards = false;
 		%>
 		<div class="subject-group">
-			<%-- 科目名ヘッダー --%>
-			<div class="subject-header">
-				<span>📁 <%= s.getName() %></span>
-				<% if (s.getIs_public() != null && s.getIs_public()) { %>
-					<span class="badge public-badge">公開中</span>
-				<% } else { %>
-					<span class="badge private-badge">非公開</span>
-				<% } %>
+			<%-- 📁 科目名ヘッダーエリア --%>
+			<div class="subject-header" style="display: flex; justify-content: space-between; align-items: center;">
+				<div>
+					<span>📁 <%= s.getName() %></span>
+					<% if (s.getIs_public() != null && s.getIs_public()) { %>
+						<span class="badge public-badge">　公開中</span>
+					<% } else { %>
+						<span class="badge private-badge">　非公開</span>
+					<% } %>
+				</div>
+				
+				<%-- 💡【ここを復活！】科目の公開・非公開や名前を編集するためのボタン --%>
+				<div>
+					<form action="SubjectUpdateServlet" method="get" style="display: inline;">
+						<input type="hidden" name="subjectId" value="<%= s.getSubjectId() %>">
+						<button type="submit" class="btn" style="background-color: #2ecc71; color: white; padding: 4px 10px; font-size: 12px; border-radius: 4px;">
+							⚙️ 科目を編集
+						</button>
+					</form>
+				</div>
 			</div>
 
 			<%-- その科目に属する自分の問題リスト --%>
@@ -194,7 +205,7 @@ h1 {
 				<%
 				if (myFlashcard != null) {
 					for (Flashcard myQ : myFlashcard) {
-						// 💡 【超重要】問題の科目IDと、現在の科目のIDが一致しているか判定
+						// 問題の科目IDと、現在の科目のIDが一致しているか判定
 						String cardSubId = String.valueOf(myQ.getSubjectId()).trim();
 						String sSubId = String.valueOf(s.getSubjectId()).trim();
 
@@ -207,16 +218,16 @@ h1 {
 						<small style="color: #7f8c8d;">A. <%= myQ.getAnswer() %></small>
 					</div>
 					
-					<%-- 編集・削除ボタンのエリア（マイ問題のみ表示） --%>
+					<%-- 問題（カード）の編集・削除ボタン --%>
 					<div class="actions">
 						<form action="CardEditServlet" method="get" style="display: inline;">
 							<input type="hidden" name="cardId" value="<%= myQ.getCardId() %>">
-							<button type="submit" class="btn btn-edit">編集</button>
+							<button type="submit" class="btn btn-edit" style="background-color: #3498db; color: white;">編集</button>
 						</form>
 						<form action="CardDeleteServlet" method="post" style="display: inline;" 
 							  onsubmit="return confirm('本当に削除しますか？');">
 							<input type="hidden" name="cardId" value="<%= myQ.getCardId() %>">
-							<button type="submit" class="btn btn-delete">削除</button>
+							<button type="submit" class="btn btn-delete" style="background-color: #e74c3c; color: white;">削除</button>
 						</form>
 					</div>
 				</div>
