@@ -9,7 +9,7 @@ public class Subject implements Serializable {
 	private int userId;
 	private String name;
 	private String colorCode;
-
+	private Boolean is_public;
 	// コンストラクタ
 	public Subject() {
 	}
@@ -22,7 +22,6 @@ public class Subject implements Serializable {
 		this.colorCode = colorCode;
 	}
 
-	// Getter と Setter
 	public int getSubjectId() {
 		return subjectId;
 	}
@@ -54,4 +53,13 @@ public class Subject implements Serializable {
 	public void setColorCode(String colorCode) {
 		this.colorCode = colorCode;
 	}
+
+	public Boolean getIs_public() {
+		return is_public;
+	}
+
+	public void setIs_public(Boolean is_public) {
+		this.is_public = is_public;
+	}
+	
 }

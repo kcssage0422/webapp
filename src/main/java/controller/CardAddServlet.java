@@ -59,6 +59,7 @@ public class CardAddServlet extends HttpServlet {
 	        int subjectId = Integer.parseInt(request.getParameter("subjectId"));
 	        String question = request.getParameter("question");
 	        String answer = request.getParameter("answer");
+	        boolean is_public = request.getParameter("isPublic") != null;
 
 	        // DTO（JavaBeans）にデータをセット
 	        Flashcard card = new Flashcard();
@@ -66,7 +67,8 @@ public class CardAddServlet extends HttpServlet {
 	        card.setSubjectId(subjectId);
 	        card.setQuestion(question);
 	        card.setAnswer(answer);
-
+	        card.setIs_public(is_public);
+	        
 	        // DAOを使ってDBに保存
 	        FlashcardDAO dao = new FlashcardDAO();
 	        boolean isSuccess = dao.insert(card);

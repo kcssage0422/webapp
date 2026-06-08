@@ -57,7 +57,6 @@ public class LoginServlet extends HttpServlet {
 			session.setAttribute("currentUser", user);
 			response.sendRedirect("HomeServlet");
 		} else {
-			// 失敗...
 			request.setAttribute("errorMsg", "ユーザー名かパスワードが違います。");
 			request.getRequestDispatcher("/WEB-INF/jsp/login.jsp").forward(request, response);
 		}

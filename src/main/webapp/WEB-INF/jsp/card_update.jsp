@@ -1,12 +1,16 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8"
 	pageEncoding="UTF-8"%>
-<%@ page import="java.util.List, model_dto.Subject"%>
+<%@ page import="java.util.List, model_dto.Subject, model_dto.Flashcard"%>
+<%
+Flashcard card = (Flashcard) request.getAttribute("card");
+List<Subject> subjectList = (List<Subject>) request.getAttribute("subjectList");
+%>
 <!DOCTYPE html>
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>カード作成 | DailyKnowly</title>
+<title>カード編集 | DailyKnowly</title>
 <style>
 body {
 	font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -41,7 +45,7 @@ h1 {
 	text-align: left;
 }
 
-label {
+.form-group label {
 	display: block;
 	margin-bottom: 8px;
 	font-size: 14px;
@@ -106,24 +110,37 @@ textarea {
 	color: #7f8c8d;
 	text-decoration: none;
 }
+
+/* ⭕️ チェックボックス専用のスタイルグループを追加して、外観を安定させます */
+.checkbox-group {
+	margin-bottom: 20px;
+	text-align: left;
+}
 </style>
 </head>
 <body>
 
 	<div class="card">
-		<h1>新しい暗記カードを作成</h1>
+		<h1>暗記カードを編集</h1>
 
-		<form action="CardAddServlet" method="post">
+		<form action="CardEditServlet" method="post">
+
+			<input type="hidden" name="cardId" value="<%=card.getCardId()%>">
+
 			<div class="form-group">
 				<label for="subjectId">科目</label> <select name="subjectId"
 					id="subjectId" required>
 					<option value="">科目を選択してください</option>
 					<%
-					List<Subject> subjectList = (List<Subject>) request.getAttribute("subjectList");
 					if (subjectList != null) {
 						for (Subject s : subjectList) {
+							String sIdStr = String.valueOf(s.getSubjectId());
+							String cIdStr = String.valueOf(card.getSubjectId());
+
+							// 💡念のため、前後の余計な空白を trim() で削って比較します
+							String selectedStr = sIdStr.trim().equals(cIdStr.trim()) ? "selected" : "";
 					%>
-					<option value="<%=s.getSubjectId()%>"><%=s.getName()%></option>
+					<option value="<%=s.getSubjectId()%>" <%=selectedStr%>><%=s.getName()%></option>
 					<%
 					}
 					}
@@ -133,24 +150,28 @@ textarea {
 
 			<div class="form-group">
 				<label for="question">問題（表面）</label>
-				<textarea name="question" id="question"
-					placeholder="例：Javaの主キーを示すアノテーションは？" required></textarea>
+				<textarea name="question" id="question" required><%=card.getQuestion()%></textarea>
 			</div>
 
 			<div class="form-group">
 				<label for="answer">答え（裏面）</label>
-				<textarea name="answer" id="answer" placeholder="例：@Id" required></textarea>
+				<textarea name="answer" id="answer" required><%=card.getAnswer()%></textarea>
 			</div>
-			<div class="input-group">
-				<label> <input type="checkbox" name="isPublic">
-					この科目を公開スペースにシェアする
+
+			<div class="checkbox-group">
+				<label
+					style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer; white-space: nowrap; color: #2c3e50;">
+					<input type="checkbox" name="isPublic" value="true"
+					<%=card.getIs_public() ? "checked" : ""%>> <span
+					style="display: inline-block; font-weight: normal;">この科目を公開スペースにシェアする</span>
 				</label>
 			</div>
-			<button type="submit" class="btn-submit">カードを登録する</button>
+
+			<button type="submit" class="btn-submit">カードを更新する</button>
 		</form>
 
 		<div class="footer-links">
-			<a href="HomeServlet">ホームに戻る</a>
+			<a href="QuestionListServlet">戻る</a>
 		</div>
 	</div>
 
