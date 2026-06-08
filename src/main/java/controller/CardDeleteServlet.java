@@ -28,7 +28,6 @@ public class CardDeleteServlet extends HttpServlet {
 			throws ServletException, IOException {
 		// TODO Auto-generated method stub
 		// 画面から送られてきたカードIDを取得
-		HttpSession session = request.getSession();
 		User currentUser = (User) request.getSession().getAttribute("currentUser");
 		if (currentUser == null) {
 			response.sendRedirect("login.jsp");
