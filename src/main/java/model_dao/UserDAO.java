@@ -10,25 +10,38 @@ import model_dto.User;
 
 public class UserDAO {
 	public boolean registerUser(User user) {
-		if (isUsernameExists(user.getUserName())) {
-			return false;
-		}
-		String sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
+	    // 💡 SQL文は、元々正常に動いていた時の記述（正しい列名）のままにしてください
+	    String sql = "INSERT INTO users (username, password_hash) VALUES (?, ?)"; 
+	    boolean success = false;
 
-		try (Connection conn = DBUtil.getConnection();
-				PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
-			pstmt.setString(1, user.getUserName());
-			pstmt.setString(2, user.getPassword());
-
-			int result = pstmt.executeUpdate();
-
-			return result > 0;
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-			return false;
-		}
+	    // 💡 1. 接続を取得する
+	    try (java.sql.Connection conn = DBUtil.getConnection(); // ※お使いの接続管理クラス名にしてください
+	         // 💡 2. 【超重要】ここで確実に Statement.RETURN_GENERATED_KEYS を指定します
+	         java.sql.PreparedStatement pstmt = conn.prepareStatement(sql, java.sql.Statement.RETURN_GENERATED_KEYS)) {
+	        
+	        // 💡 3. 値をセット（お使いのDTOのゲッター名に合わせてください）
+	        pstmt.setString(1, user.getUserName());
+	        pstmt.setString(2, user.getPassword());
+	        
+	        // SQLを実行
+	        int affectedRows = pstmt.executeUpdate();
+	        
+	        if (affectedRows > 0) {
+	            success = true;
+	            
+	            // 💡 4. データベース側で生成された自動採番のID（主キー）を回収する
+	            try (java.sql.ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
+	                if (generatedKeys.next()) {
+	                    // 自動生成されたID（1列目の値）を、引数で渡された user オブジェクトに書き戻す
+	                    // ※ お使いのUser DTOのIDセットメソッド名（setId や setUserId など）に合わせてください
+	                    user.setId(generatedKeys.getInt(1)); 
+	                }
+	            }
+	        }
+	    } catch (java.sql.SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return success;
 	}
 
 	public boolean isUsernameExists(String username) {

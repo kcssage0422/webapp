@@ -71,13 +71,16 @@ public class RegisterServlet extends HttpServlet {
 
 		boolean isSuccess = dao.registerUser(newUser);
 		if (isSuccess) {
-			// 1. セッションを開始
-		    HttpSession session = request.getSession();
-		    
-		    // 2. 登録したユーザー情報を「ログイン済み」としてセット
-		    // (newUserは登録に使ったDTOオブジェクト)
-		    session.setAttribute("currentUser", newUser);
-			// 成功：完了画面へリダイレクト（二重送信防止）
+			// 一度セッションをクリアして安全に作り直す
+			HttpSession session = request.getSession();
+			session.invalidate(); 
+			session = request.getSession(true);
+			
+			// 💡 DAOの改良により、この時点の newUser には
+			// データベースから取得した最新の正しいIDが自動でセットされています！
+			session.setAttribute("currentUser", newUser);
+
+			// 成功：完了画面へリダイレクト
 			response.sendRedirect(request.getContextPath() + "/HomeServlet");
 		} else {
 			// 失敗：エラーメッセージを出して入力画面へ戻る

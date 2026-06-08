@@ -3,6 +3,7 @@
 <%@ page
 	import="java.util.List, model_dto.Flashcard, model_dto.Subject, model_dto.User"%>
 <%
+// 💡 サーブレットから渡されたデータを正しく受け取る
 List<Flashcard> myFlashcard = (List<Flashcard>) request.getAttribute("myCardList");
 List<java.util.Map<String, Object>> publicFlashcard = (List<java.util.Map<String, Object>>) request.getAttribute("publicCardList");
 List<Subject> subjectList = (List<Subject>) request.getAttribute("subjectList");
@@ -23,7 +24,6 @@ body {
 	margin: 0;
 }
 
-/* 🏠 ホーム戻るボタン用のエリアとスタイル設定 */
 .top-bar {
 	max-width: 700px;
 	margin: 0 auto 15px auto;
@@ -98,7 +98,7 @@ h1 {
 	display: flex;
 	gap: 5px;
 }
-/* ボタンの共通スタイル */
+
 .btn {
 	display: inline-block;
 	padding: 6px 12px;
@@ -128,20 +128,7 @@ h1 {
 	background-color: #c0392b;
 }
 
-/* 🔒 リンクからボタン仕様に変更するためのスタイル調整 */
-.btn-subject {
-	background-color: #2ecc71;
-	font-size: 12px;
-	padding: 4px 8px;
-	border: none;
-	font-family: inherit;
-}
-
-.btn-subject:hover {
-	background-color: #27ae60;
-}
-
-.status-badge {
+.badge {
 	font-size: 11px;
 	padding: 2px 6px;
 	border-radius: 4px;
@@ -149,47 +136,43 @@ h1 {
 	font-weight: normal;
 }
 
-.status-public {
+.public-badge {
 	background-color: #e8f8f5;
 	color: #2ecc71;
 }
 
-.status-private {
+.private-badge {
 	background-color: #fbeee6;
 	color: #e67e22;
 }
 </style>
 </head>
 <body>
+
 	<div class="top-bar">
-		<%-- 
-		  ※ もしホーム画面を表示する際にサーブレット（例: HomeServlet）を経由させている場合は、
-		  href="HomeServlet" に書き換えてください。単にJSPを開くだけなら "home.jsp" でOKです。
-		--%>
 		<a href="HomeServlet" class="btn btn-home">←ホームへ戻る</a>
 	</div>
+
 	<div class="section-container">
 		<h1>マイ問題</h1>
 
 		<%
-		// 1. 自分の科目リストが存在するかチェック
-		if (subjectList != null) {
+		// 自分の作成した科目が1つ以上ある場合のみループ
+		if (subjectList != null && !subjectList.isEmpty()) {
 			for (Subject s : subjectList) {
 				boolean hasMyCards = false;
 		%>
 		<div class="subject-group">
-			<%-- 📁 科目名ヘッダーエリア --%>
-			<div class="subject-header" style="display: flex; justify-content: space-between; align-items: center;">
+			<div class="subject-header">
 				<div>
 					<span>📁 <%= s.getName() %></span>
 					<% if (s.getIs_public() != null && s.getIs_public()) { %>
-						<span class="badge public-badge">　公開中</span>
+						<span class="badge public-badge">公開中</span>
 					<% } else { %>
-						<span class="badge private-badge">　非公開</span>
+						<span class="badge private-badge">非公開</span>
 					<% } %>
 				</div>
 				
-				<%-- 💡【ここを復活！】科目の公開・非公開や名前を編集するためのボタン --%>
 				<div>
 					<form action="SubjectUpdateServlet" method="get" style="display: inline;">
 						<input type="hidden" name="subjectId" value="<%= s.getSubjectId() %>">
@@ -200,12 +183,10 @@ h1 {
 				</div>
 			</div>
 
-			<%-- その科目に属する自分の問題リスト --%>
 			<div class="card-list">
 				<%
 				if (myFlashcard != null) {
 					for (Flashcard myQ : myFlashcard) {
-						// 問題の科目IDと、現在の科目のIDが一致しているか判定
 						String cardSubId = String.valueOf(myQ.getSubjectId()).trim();
 						String sSubId = String.valueOf(s.getSubjectId()).trim();
 
@@ -218,16 +199,15 @@ h1 {
 						<small style="color: #7f8c8d;">A. <%= myQ.getAnswer() %></small>
 					</div>
 					
-					<%-- 問題（カード）の編集・削除ボタン --%>
 					<div class="actions">
 						<form action="CardEditServlet" method="get" style="display: inline;">
 							<input type="hidden" name="cardId" value="<%= myQ.getCardId() %>">
-							<button type="submit" class="btn btn-edit" style="background-color: #3498db; color: white;">編集</button>
+							<button type="submit" class="btn btn-edit">編集</button>
 						</form>
 						<form action="CardDeleteServlet" method="post" style="display: inline;" 
 							  onsubmit="return confirm('本当に削除しますか？');">
 							<input type="hidden" name="cardId" value="<%= myQ.getCardId() %>">
-							<button type="submit" class="btn btn-delete" style="background-color: #e74c3c; color: white;">削除</button>
+							<button type="submit" class="btn btn-delete">削除</button>
 						</form>
 					</div>
 				</div>
@@ -236,7 +216,6 @@ h1 {
 					}
 				}
 				
-				// もしこの科目に自分の問題が1つも登録されていない場合
 				if (!hasMyCards) {
 				%>
 				<p style="color: #95a5a6; font-size: 13px; text-align: center; margin: 10px 0 0 0;">
@@ -251,7 +230,7 @@ h1 {
 			}
 		} else {
 		%>
-		<p style="text-align: center; color: #7f8c8d;">作成済みの科目がありません。まずは科目を作成してください。</p>
+		<p style="text-align: center; color: #7f8c8d; padding: 20px 0;">作成済みの科目がありません。まずはホームから科目を作成してください。</p>
 		<%
 		}
 		%>
@@ -262,11 +241,10 @@ h1 {
 		<h1>公開問題</h1>
 
 		<%
-		// 1. 公開されている科目リストと公開問題リストが存在するかチェック
-		if (publicSubjectList != null && publicFlashcard != null) {
+		if (publicSubjectList != null && publicFlashcard != null && !publicSubjectList.isEmpty()) {
 			for (Subject s : publicSubjectList) {
 				
-				// 💡 事前に「この公開科目に紐づく公開問題」が本当に存在するかカウントする
+				// 事前にこの公開科目に属するカードがあるか数える
 				int visibleCardCount = 0;
 				for (java.util.Map<String, Object> map : publicFlashcard) {
 					Flashcard pq = (Flashcard) map.get("cardData");
@@ -279,19 +257,18 @@ h1 {
 					}
 				}
 
-				// 💡 公開問題が1件もない科目の場合は、枠（フォルダ）ごと画面に表示しない！
+				// 公開問題がない科目の枠は表示しない
 				if (visibleCardCount == 0) {
 					continue;
 				}
 		%>
 		<div class="subject-group">
 			<div class="subject-header" style="background: #f4f6f7;">
-				<span> 📁 <%= s.getName() %></span>
+				<span>📁 <%= s.getName() %></span>
 			</div>
 
 			<div class="card-list">
 				<%
-				// 2. 実際に1件以上あることが確定しているので、中身をループして出力
 				for (java.util.Map<String, Object> map : publicFlashcard) {
 					Flashcard pq = (Flashcard) map.get("cardData");
 					
@@ -301,7 +278,7 @@ h1 {
 
 						if (pqSubId.equals(sSubId)) {
 							
-							// 💡 すでに同じ問題を自分が持っているかチェック
+							// すでに同じ問題を自分が持っているかチェック
 							boolean isDownloaded = false;
 							if (myFlashcard != null) {
 								for (Flashcard myQ : myFlashcard) {
@@ -321,10 +298,8 @@ h1 {
 					
 					<div class="actions">
 						<% if (isDownloaded) { %>
-							<%-- 取得済みの場合はグレーの無効化ボタン --%>
 							<button class="btn" style="background-color: #bdc3c7; cursor: not-allowed;" disabled>✓ 取得済み</button>
 						<% } else { %>
-							<%-- 未取得の場合は紫色の取得ボタン --%>
 							<form action="CardDownloadServlet" method="post" style="display: inline;">
 								<input type="hidden" name="cardId" value="<%= pq.getCardId() %>">
 								<button type="submit" class="btn" style="background-color: #9b59b6;">📥 取得</button>
@@ -340,16 +315,14 @@ h1 {
 			</div>
 		</div>
 		<%
-			} // 外側の公開科目ループの終わり
+			}
 		} else {
 		%>
-		<p style="text-align: center; color: #7f8c8d;">公開されている問題はありません。</p>
+		<p style="text-align: center; color: #7f8c8d; padding: 20px 0;">公開されている問題はまだありません。</p>
 		<%
 		}
 		%>
 	</div>
-
-	
 
 </body>
 </html>

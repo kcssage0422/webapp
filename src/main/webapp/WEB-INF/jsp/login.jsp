@@ -141,7 +141,7 @@ button:active {
 		</div>
 		<div
 			style="position: fixed; bottom: 15px; right: 15px; font-size: 20px; color: #000000; font-family: 'Helvetica Neue', Arial, sans-serif; z-index: 9999;">
-			ver 1.1.0</div>
+			ver 1.1.1</div>
 
 		<div class="login-card">
 			<h2>LOGIN</h2>
