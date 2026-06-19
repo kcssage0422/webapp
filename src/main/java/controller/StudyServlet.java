@@ -25,26 +25,41 @@ public class StudyServlet extends HttpServlet {
 	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse response)
 	 */
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
-		 HttpSession session = request.getSession();
-		    User currentUser = (User) session.getAttribute("currentUser");
-		    if (currentUser == null) {
-	            // ログインしていない場合はログイン画面へ戻す
-	            response.sendRedirect("LoginServlet"); 
-	            return;
-	        }
-		    // 科目一覧を取得
-		    FlashcardDAO sDao = new FlashcardDAO();
-		    List<Flashcard> flashCardList = sDao.findCardsForReview(currentUser.getId());
-		    // 学習するカードがないなら、HomeServletに返す
-		    if(flashCardList.isEmpty()) {
-		    	session.setAttribute("msg", "今回の学習するカードはありません");
-		    	response.sendRedirect("HomeServlet");
-		    	return;
-		    }
-		    // JSPへ渡して表示
-		    request.setAttribute("flashCardList", flashCardList);
-		    request.getRequestDispatcher("WEB-INF/jsp/studyCard.jsp").forward(request, response);
+		HttpSession session = request.getSession();
+		User currentUser = (User) session.getAttribute("currentUser");
+		if (currentUser == null) {
+			response.sendRedirect("LoginServlet"); 
+			return;
+		}
+
+		// 1. パラメータから取得を試みる
+		String subjectIdStr = request.getParameter("subjectId");
+		int subjectId;
+		
+		if (subjectIdStr != null) {
+			subjectId = Integer.parseInt(subjectIdStr);
+			session.setAttribute("currentSubjectId", subjectId); // セッションに保存しておく
+		} else {
+			// 2. パラメータがなければセッションから復元
+			Integer savedId = (Integer) session.getAttribute("currentSubjectId");
+			if (savedId == null) {
+				response.sendRedirect("HomeServlet"); // どこにもIDがないならホームへ
+				return;
+			}
+			subjectId = savedId;
+		}
+
+		FlashcardDAO sDao = new FlashcardDAO();
+		List<Flashcard> questionList = sDao.getDueQuestionsBySubject(currentUser.getId(), subjectId);
+		
+		if(questionList.isEmpty()) {
+			session.setAttribute("msg", "今回の学習するカードはありません");
+			response.sendRedirect("HomeServlet");
+			return;
+		}
+		
+		request.setAttribute("flashCardList", questionList);
+		request.getRequestDispatcher("WEB-INF/jsp/studyCard.jsp").forward(request, response);
 	}
 
 	/**
@@ -142,6 +157,7 @@ public class StudyServlet extends HttpServlet {
 	    
 	    // 3. どちらの条件にも当てはまらなかった場合
 	    System.out.println("【警告】条件不一致のためHomeへ戻します。");
-	    response.sendRedirect("HomeServlet");
+	    response.sendRedirect("StudyServlet?subjectId=" + subjectIdStr);
+	    return;
 	}
 }

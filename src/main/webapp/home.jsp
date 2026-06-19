@@ -128,7 +128,7 @@
     </div>
 
     <div class="nav-menu">
-        <a href="StudyServlet" class="nav-item">学習開始</a>
+        <a href="SubjectSelectServlet" class="nav-item">学習開始</a>
         <a href="CardAddServlet" class="nav-item">カード作成</a>
         <a href="QuestionListServlet" class="nav-item">問題一覧</a>
         <a href="CalendarServlet" class="nav-item">カレンダー</a>

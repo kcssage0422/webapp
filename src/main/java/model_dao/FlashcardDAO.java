@@ -323,4 +323,56 @@ public class FlashcardDAO {
 	    }
 	    return card;
 	}
+	public List<Flashcard> getDueQuestionsBySubject(int userId, int subjectId) {
+	    List<Flashcard> list = new ArrayList<>();
+	    // SQL: ユーザーID かつ 科目ID かつ 今日が復習日の問題を抽出
+	    String sql = "SELECT * FROM flashcards " +
+	                 "WHERE user_id = ? AND subject_id = ? AND next_review_date <= CURRENT_DATE";
+
+	    try (Connection conn = DBUtil.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        
+	        pstmt.setInt(1, userId);
+	        pstmt.setInt(2, subjectId); // ここで科目IDを絞り込み
+	        
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            while (rs.next()) {
+	                Flashcard card = new Flashcard();
+	                card.setCardId(rs.getInt("card_id"));
+	                card.setQuestion(rs.getString("question"));
+	                card.setAnswer(rs.getString("answer"));
+	                // ... 他のフィールドセット
+	                list.add(card);
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return list;
+	}
+	public List<Flashcard> getAllQuestionsBySubject(int userId, int subjectId) {
+	    List<Flashcard> list = new ArrayList<>();
+	    // 💡 条件から next_review_date を外すことで全件取得
+	    String sql = "SELECT * FROM flashcards WHERE user_id = ? AND subject_id = ? ORDER BY RAND()";
+
+	    try (Connection conn = DBUtil.getConnection();
+	         PreparedStatement pstmt = conn.prepareStatement(sql)) {
+	        
+	        pstmt.setInt(1, userId);
+	        pstmt.setInt(2, subjectId);
+	        
+	        try (ResultSet rs = pstmt.executeQuery()) {
+	            while (rs.next()) {
+	                Flashcard card = new Flashcard();
+	                card.setCardId(rs.getInt("card_id"));
+	                card.setQuestion(rs.getString("question"));
+	                card.setAnswer(rs.getString("answer"));
+	                list.add(card);
+	            }
+	        }
+	    } catch (SQLException e) {
+	        e.printStackTrace();
+	    }
+	    return list;
+	}
 }
