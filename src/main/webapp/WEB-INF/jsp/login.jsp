@@ -7,33 +7,44 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ログイン | DailyKnowly</title>
 <style>
-/* 全体のリセットと背景 */
 body {
 	font-family: 'Helvetica Neue', Arial, sans-serif;
 	background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	height: 100vh;
+	min-height: 100vh;
 	margin: 0;
 	color: #333;
 }
 
-/* ラッパー（タイトルとカードを縦に並べるための箱） */
 .login-wrapper {
 	width: 100%;
-	max-width: 380px;
+	max-width: 400px;
 	text-align: center;
 }
 
-/* 追加：カードの上のアプリタイトル */
-.app-title {
-	font-size: 28px;
-	font-weight: bold;
+/* タイトルエリア（枠線なし） */
+.title-area {
+	position: relative;
+	display: inline-block;
+	margin-bottom: 40px;
+}
+
+.main-title {
+	margin: 0;
+	font-size: 4rem;
 	color: #2c3e50;
-	margin-bottom: 100px;
-	letter-spacing: 2px;
-	text-shadow: 1px 1px 0px rgba(255, 255, 255, 0.5); /* 文字を少し立体的に */
+	letter-spacing: 1px;
+}
+
+.version-badge {
+	position: absolute;
+	right: -35px; /* タイトルの右側に配置 */
+	bottom: 5px;
+	font-size: 0.8rem;
+	color: #95a5a6;
+	font-weight: bold;
 }
 
 /* ログインカード */
@@ -42,17 +53,15 @@ body {
 	padding: 40px;
 	border-radius: 12px;
 	box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-	text-align: center;
 }
 
 h2 {
-	margin-bottom: 30px;
+	margin-bottom: 20px;
 	color: #7f8c8d;
 	font-size: 18px;
-	letter-spacing: 1px;
 }
 
-/* エラーメッセージ */
+/* 以下、入力項目などは共通 */
 .error-msg {
 	background-color: #fee;
 	color: #e74c3c;
@@ -63,7 +72,6 @@ h2 {
 	border: 1px solid #fab1a0;
 }
 
-/* 入力エリア */
 .input-group {
 	text-align: left;
 	margin-bottom: 20px;
@@ -82,16 +90,8 @@ input[type="text"], input[type="password"] {
 	border: 1px solid #ddd;
 	border-radius: 8px;
 	box-sizing: border-box;
-	font-size: 16px;
-	transition: border-color 0.3s;
 }
 
-input:focus {
-	outline: none;
-	border-color: #3498db;
-}
-
-/* ボタン */
 button {
 	width: 100%;
 	padding: 14px;
@@ -99,22 +99,10 @@ button {
 	color: white;
 	border: none;
 	border-radius: 8px;
-	font-size: 16px;
 	font-weight: bold;
 	cursor: pointer;
-	transition: background-color 0.3s, transform 0.1s;
-	margin-top: 10px;
 }
 
-button:hover {
-	background-color: #2980b9;
-}
-
-button:active {
-	transform: scale(0.98);
-}
-
-/* 下部リンク */
 .footer-links {
 	margin-top: 25px;
 	font-size: 14px;
@@ -126,26 +114,18 @@ button:active {
 	text-decoration: none;
 	font-weight: bold;
 }
-
-.footer-links a:hover {
-	text-decoration: underline;
-}
 </style>
 </head>
 <body>
 
 	<div class="login-wrapper">
-
-		<div class="app-title">
-			<h1>DailyKnowly</h1>
+		<div class="title-area">
+			<h1 class="main-title">DailyKnowly</h1><br>
+			<span class="version-badge">v1.2.1</span>
 		</div>
-		<div
-			style="position: fixed; bottom: 15px; right: 15px; font-size: 20px; color: #000000; font-family: 'Helvetica Neue', Arial, sans-serif; z-index: 9999;">
-			ver 1.2.0</div>
 
 		<div class="login-card">
 			<h2>LOGIN</h2>
-
 			<%
 			if (request.getAttribute("errorMsg") != null) {
 			%>
@@ -158,23 +138,19 @@ button:active {
 				method="post">
 				<div class="input-group">
 					<label for="userName">ユーザー名</label> <input type="text"
-						id="userName" name="userName" placeholder="Username" required
-						autofocus>
+						id="userName" name="userName" required autofocus>
 				</div>
-
 				<div class="input-group">
 					<label for="password">パスワード</label> <input type="password"
-						id="password" name="password" placeholder="Password" required>
+						id="password" name="password" required>
 				</div>
-
 				<button type="submit">ログイン</button>
 			</form>
 
 			<div class="footer-links">
-				アカウントをお持ちでないですか？ <br> <a href="RegisterServlet">新規アカウント作成</a>
+				アカウントをお持ちでないですか？<br> <a href="RegisterServlet">新規アカウント作成</a>
 			</div>
 		</div>
-
 	</div>
 
 </body>
